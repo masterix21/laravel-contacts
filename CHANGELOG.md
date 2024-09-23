@@ -2,6 +2,12 @@
 
 All notable changes to `laravel-contacts` will be documented in this file.
 
+## 0.0.4 - 2024-09-23
+
+### 0.0.4 - 2024-09-23
+
+- [FIX] Add empty guarded to `Contact` model
+
 ## 0.0.3 - 2024-09-23
 
 ### 0.0.3 - 2024-09-24

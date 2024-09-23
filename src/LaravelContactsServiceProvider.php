@@ -2,7 +2,6 @@
 
 namespace LucaLongo\LaravelContacts;
 
-use LucaLongo\LaravelContacts\Commands\LaravelContactsCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -19,7 +18,6 @@ class LaravelContactsServiceProvider extends PackageServiceProvider
             ->name('laravel-contacts')
             ->hasConfigFile()
             ->hasViews()
-            ->hasMigration('create_laravel_contacts_table')
-            ->hasCommand(LaravelContactsCommand::class);
+            ->hasMigration('create_contacts_table');
     }
 }

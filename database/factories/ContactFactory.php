@@ -18,9 +18,9 @@ class ContactFactory extends Factory
             'mobile' => $this->faker->phoneNumber(),
             'email' => $this->faker->unique()->safeEmail(),
             'website' => $this->faker->url(),
-            'facebook' => 'https://facebook.com/'. $this->faker->userName(),
-            'x' => 'https://x.com/@'. $this->faker->userName(),
-            'linkedin' => 'https://linkedin.com/'. $this->faker->userName(),
+            'facebook' => 'https://facebook.com/'.$this->faker->userName(),
+            'x' => 'https://x.com/@'.$this->faker->userName(),
+            'linkedin' => 'https://linkedin.com/'.$this->faker->userName(),
             'push_token' => $this->faker->uuid(),
         ];
     }

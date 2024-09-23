@@ -10,6 +10,8 @@ class Contact extends Model
 {
     use HasFactory;
 
+    protected $guarded = [];
+
     public function contactable(): MorphTo
     {
         return $this->morphTo();

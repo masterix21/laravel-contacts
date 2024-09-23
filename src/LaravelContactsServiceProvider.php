@@ -2,9 +2,9 @@
 
 namespace LucaLongo\LaravelContacts;
 
+use LucaLongo\LaravelContacts\Commands\LaravelContactsCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use LucaLongo\LaravelContacts\Commands\LaravelContactsCommand;
 
 class LaravelContactsServiceProvider extends PackageServiceProvider
 {

@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-contacts` will be documented in this file.
 
+## 0.0.5 - 2025-03-05
+
+- Support Laravel 12.x
+
 ## 0.0.4 - 2024-09-23
 
 ### 0.0.4 - 2024-09-23

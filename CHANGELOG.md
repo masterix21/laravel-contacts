@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-contacts` will be documented in this file.
 
+## 0.0.6 - 2025-11-18
+
+Removed solution-forest/filament-tree
+
 ## 0.0.5 - 2025-03-05
 
 - Support Laravel 12.x

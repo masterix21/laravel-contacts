@@ -2,11 +2,21 @@
 
 All notable changes to `laravel-contacts` will be documented in this file.
 
-## Unreleased
+## 1.0.0 - 2026-04-29
 
-- Add support for Laravel 13.
-- Drop support for Laravel 10.
-- Remove unused `solution-forest/filament-tree` dependency.
+### Added
+- Support for Laravel 13.
+- Expanded Pest test suite covering `Contact`, `HasContacts` trait, factory, and migrations.
+- Array casting for the `Contact` `meta` field.
+
+### Changed
+- Bumped minimum Pest to v3 to align with the test suite API.
+- Updated GitHub Actions: `actions/checkout` v6, `ramsey/composer-install` v4, `stefanzweifel/git-auto-commit-action` v7, `dependabot/fetch-metadata` v3.1.
+
+### Removed
+- Support for Laravel 10.
+- Unused `solution-forest/filament-tree` dependency.
+- Auto-registered `LaravelContacts` facade alias.
 
 ## 0.0.4 - 2024-09-23
 

@@ -1,60 +1,132 @@
-# Add contacts book abilities to any Laravel project
+# Laravel Contacts
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/masterix21/laravel-contacts.svg?style=flat-square)](https://packagist.org/packages/masterix21/laravel-contacts)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/masterix21/laravel-contacts/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/masterix21/laravel-contacts/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/masterix21/laravel-contacts/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/masterix21/laravel-contacts/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
+[![Tests](https://img.shields.io/github/actions/workflow/status/masterix21/laravel-contacts/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/masterix21/laravel-contacts/actions?query=workflow%3Arun-tests+branch%3Amain)
+[![PHPStan](https://img.shields.io/github/actions/workflow/status/masterix21/laravel-contacts/phpstan.yml?branch=main&label=phpstan&style=flat-square)](https://github.com/masterix21/laravel-contacts/actions?query=workflow%3APHPStan+branch%3Amain)
+[![Code Style](https://img.shields.io/github/actions/workflow/status/masterix21/laravel-contacts/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/masterix21/laravel-contacts/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/masterix21/laravel-contacts.svg?style=flat-square)](https://packagist.org/packages/masterix21/laravel-contacts)
 
-This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
+Attach a contact book to any Eloquent model. Users, companies, venues, projects — anything that needs phone numbers, emails, websites, or social handles can grow them through a single polymorphic relation, without you spinning up a dedicated table for every model.
 
-## Support us
+## Why
 
-[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/laravel-contacts.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/laravel-contacts)
+Most apps end up scattering contact fields across half a dozen tables: a `phone` column on `users`, an `email` on `companies`, a separate `addresses` table that nobody trusts. This package centralises all of that into one `contacts` table and lets any model attach as many entries as it needs.
 
-We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
+A single contact row can hold a label (e.g. *Office*, *Personal*), a phone, a mobile, an email, a website, a few social handles, a push token, and a freeform `meta` JSON payload for anything else.
 
-We highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using. You'll find our address on [our contact page](https://spatie.be/about-us). We publish all received postcards on [our virtual postcard wall](https://spatie.be/open-source/postcards).
+## Requirements
+
+- PHP 8.2+
+- Laravel 11, 12, or 13
 
 ## Installation
 
-You can install the package via composer:
+Install via Composer:
 
 ```bash
 composer require masterix21/laravel-contacts
 ```
 
-You can publish and run the migrations with:
+Publish and run the migration:
 
 ```bash
 php artisan vendor:publish --tag="laravel-contacts-migrations"
 php artisan migrate
 ```
 
-You can publish the config file with:
+If you need to swap the `Contact` model for your own subclass, publish the config:
 
 ```bash
 php artisan vendor:publish --tag="laravel-contacts-config"
 ```
 
-This is the contents of the published config file:
-
 ```php
+// config/contacts.php
 return [
+    'models' => [
+        'contact' => \App\Models\Contact::class,
+    ],
 ];
-```
-
-Optionally, you can publish the views using
-
-```bash
-php artisan vendor:publish --tag="laravel-contacts-views"
 ```
 
 ## Usage
 
+Add the `HasContacts` trait to any model that should own contacts:
+
 ```php
-$laravelContacts = new LucaLongo\LaravelContacts();
-echo $laravelContacts->echoPhrase('Hello, LucaLongo!');
+use Illuminate\Database\Eloquent\Model;
+use LucaLongo\LaravelContacts\Models\Concerns\HasContacts;
+
+class User extends Model
+{
+    use HasContacts;
+}
 ```
+
+That's it — the model now exposes a polymorphic `contacts()` relation plus four filtered helpers.
+
+### Adding contacts
+
+```php
+$user->contacts()->create([
+    'label' => 'Office',
+    'email' => 'luca@example.com',
+    'phone' => '+39 02 1234567',
+    'website' => 'https://example.com',
+]);
+
+$user->contacts()->create([
+    'label' => 'Personal',
+    'mobile' => '+39 333 1234567',
+    'meta' => [
+        'preferred_channel' => 'whatsapp',
+        'timezone' => 'Europe/Rome',
+    ],
+]);
+```
+
+### Reading contacts
+
+The trait ships with helpers that filter the relation by the field you care about:
+
+```php
+$user->contacts;   // every contact
+$user->emails;     // only contacts with a non-null email
+$user->phones;     // only contacts with a non-null phone
+$user->mobiles;    // only contacts with a non-null mobile
+$user->websites;   // only contacts with a non-null website
+```
+
+Each helper returns a `MorphMany`, so you can keep chaining:
+
+```php
+$primaryEmail = $user->emails()->where('label', 'Office')->first()?->email;
+```
+
+### The meta field
+
+`meta` is cast to `AsArrayObject`, so you can read and write it like a native array and Laravel will persist the JSON for you:
+
+```php
+$contact = $user->contacts()->first();
+
+$contact->meta['preferred_channel'] = 'email';
+$contact->save();
+```
+
+### Available fields
+
+| Field | Type | Notes |
+|------|------|------|
+| `label` | string | Free label, e.g. *Office*, *Billing* |
+| `phone`, `mobile` | string | Landline / mobile numbers |
+| `email` | string | |
+| `website` | string | |
+| `facebook`, `x`, `linkedin` | string | Social handles or full URLs |
+| `push_token` | string | Device push token |
+| `meta` | array | Anything else, stored as JSON |
+
+The model has no `$fillable` and `$guarded = []`, so mass-assignment is open by design — guard your input at the request layer.
 
 ## Testing
 
@@ -64,21 +136,21 @@ composer test
 
 ## Changelog
 
-Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
+See [CHANGELOG](CHANGELOG.md) for the release history.
 
 ## Contributing
 
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
+See [CONTRIBUTING](CONTRIBUTING.md).
 
-## Security Vulnerabilities
+## Security
 
-Please review [our security policy](../../security/policy) on how to report security vulnerabilities.
+Found a vulnerability? Please review the [security policy](../../security/policy) before opening a public issue.
 
 ## Credits
 
 - [Luca Longo](https://github.com/masterix21)
-- [All Contributors](../../contributors)
+- [All contributors](../../contributors)
 
 ## License
 
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+The MIT License (MIT). See [LICENSE.md](LICENSE.md).
